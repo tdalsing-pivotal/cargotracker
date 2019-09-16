@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import net.java.cargotracker.interfaces.booking.facade.BookingServiceFacade;
 import net.java.cargotracker.interfaces.booking.facade.dto.CargoRoute;
 import net.java.cargotracker.interfaces.booking.facade.dto.Location;
 import org.primefaces.context.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Handles changing the cargo destination. Operates against a dedicated service
@@ -29,11 +29,16 @@ import org.primefaces.context.RequestContext;
 public class ChangeDestination implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     private String trackingId;
+
     private CargoRoute cargo;
+
     private List<Location> locations;
+
     private String destinationUnlocode;
-    @Inject
+
+    @Autowired
     private BookingServiceFacade bookingServiceFacade;
 
     public String getTrackingId() {

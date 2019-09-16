@@ -5,13 +5,13 @@ import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import net.java.cargotracker.domain.model.cargo.Cargo;
 import net.java.cargotracker.domain.model.cargo.CargoRepository;
 import net.java.cargotracker.domain.model.cargo.TrackingId;
 import net.java.cargotracker.domain.model.handling.HandlingEvent;
 import net.java.cargotracker.domain.model.handling.HandlingEventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Backing bean for tracking cargo. This interface sits immediately on top of
@@ -32,12 +32,14 @@ public class Track implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Inject
+    @Autowired
     private CargoRepository cargoRepository;
-    @Inject
+
+    @Autowired
     private HandlingEventRepository handlingEventRepository;
 
     private String trackingId;
+
     private CargoTrackingViewAdapter cargo;
 
     public String getTrackingId() {
@@ -49,7 +51,6 @@ public class Track implements Serializable {
         if (trackingId != null) {
             trackingId = trackingId.trim();
         }
-
         this.trackingId = trackingId;
     }
 
@@ -62,7 +63,7 @@ public class Track implements Serializable {
     }
 
     /**
-     * @param query The query parameter is required by PrimeFaces but we don't 
+     * @param query The query parameter is required by PrimeFaces but we don't
      * use it.
      */
     public List<TrackingId> getTrackingIds(String query) {
@@ -71,17 +72,13 @@ public class Track implements Serializable {
 
     public void onTrackById() {
         Cargo cargo = cargoRepository.find(new TrackingId(trackingId));
-
         if (cargo != null) {
-            List<HandlingEvent> handlingEvents = handlingEventRepository
-                    .lookupHandlingHistoryOfCargo(new TrackingId(trackingId))
-                    .getDistinctEventsByCompletionTime();
+            List<HandlingEvent> handlingEvents = handlingEventRepository.lookupHandlingHistoryOfCargo(new TrackingId(trackingId)).getDistinctEventsByCompletionTime();
             this.cargo = new CargoTrackingViewAdapter(cargo, handlingEvents);
         } else {
             // TODO See if this can be injected.
             FacesContext context = FacesContext.getCurrentInstance();
-            FacesMessage message = new FacesMessage(
-                    "Cargo with tracking ID: " + trackingId + " not found.");
+            FacesMessage message = new FacesMessage("Cargo with tracking ID: " + trackingId + " not found.");
             message.setSeverity(FacesMessage.SEVERITY_ERROR);
             context.addMessage(null, message);
             this.cargo = null;

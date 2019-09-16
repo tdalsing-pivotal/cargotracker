@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import net.java.cargotracker.application.BookingService;
 import net.java.cargotracker.domain.model.cargo.Cargo;
 import net.java.cargotracker.domain.model.cargo.CargoRepository;
@@ -21,19 +19,24 @@ import net.java.cargotracker.interfaces.booking.facade.dto.RouteCandidate;
 import net.java.cargotracker.interfaces.booking.facade.internal.assembler.CargoRouteDtoAssembler;
 import net.java.cargotracker.interfaces.booking.facade.internal.assembler.ItineraryCandidateDtoAssembler;
 import net.java.cargotracker.interfaces.booking.facade.internal.assembler.LocationDtoAssembler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@ApplicationScoped
-public class DefaultBookingServiceFacade implements BookingServiceFacade,
-        Serializable {
+@Service
+public class DefaultBookingServiceFacade implements BookingServiceFacade, Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Inject
+
+    @Autowired
     private BookingService bookingService;
-    @Inject
+
+    @Autowired
     private LocationRepository locationRepository;
-    @Inject
+
+    @Autowired
     private CargoRepository cargoRepository;
-    @Inject
+
+    @Autowired
     private VoyageRepository voyageRepository;
 
     @Override
@@ -44,11 +47,8 @@ public class DefaultBookingServiceFacade implements BookingServiceFacade,
     }
 
     @Override
-    public String bookNewCargo(String origin, String destination,
-            Date arrivalDeadline) {
-        TrackingId trackingId = bookingService.bookNewCargo(
-                new UnLocode(origin), new UnLocode(destination),
-                arrivalDeadline);
+    public String bookNewCargo(String origin, String destination, Date arrivalDeadline) {
+        TrackingId trackingId = bookingService.bookNewCargo(new UnLocode(origin), new UnLocode(destination), arrivalDeadline);
         return trackingId.getIdString();
     }
 
@@ -60,49 +60,36 @@ public class DefaultBookingServiceFacade implements BookingServiceFacade,
     }
 
     @Override
-    public void assignCargoToRoute(String trackingIdStr,
-            RouteCandidate routeCandidateDTO) {
-        Itinerary itinerary = new ItineraryCandidateDtoAssembler()
-                .fromDTO(routeCandidateDTO, voyageRepository,
-                        locationRepository);
+    public void assignCargoToRoute(String trackingIdStr, RouteCandidate routeCandidateDTO) {
+        Itinerary itinerary = new ItineraryCandidateDtoAssembler().fromDTO(routeCandidateDTO, voyageRepository, locationRepository);
         TrackingId trackingId = new TrackingId(trackingIdStr);
-
         bookingService.assignCargoToRoute(itinerary, trackingId);
     }
 
     @Override
     public void changeDestination(String trackingId, String destinationUnLocode) {
-        bookingService.changeDestination(new TrackingId(trackingId),
-                new UnLocode(destinationUnLocode));
+        bookingService.changeDestination(new TrackingId(trackingId), new UnLocode(destinationUnLocode));
     }
 
     @Override
     public List<CargoRoute> listAllCargos() {
         List<Cargo> cargos = cargoRepository.findAll();
         List<CargoRoute> routes = new ArrayList<>(cargos.size());
-
         CargoRouteDtoAssembler assembler = new CargoRouteDtoAssembler();
-
         for (Cargo cargo : cargos) {
             routes.add(assembler.toDto(cargo));
         }
-
         return routes;
     }
 
     @Override
     public List<RouteCandidate> requestPossibleRoutesForCargo(String trackingId) {
-        List<Itinerary> itineraries = bookingService
-                .requestPossibleRoutesForCargo(new TrackingId(trackingId));
-
-        List<RouteCandidate> routeCandidates = new ArrayList<>(
-                itineraries.size());
-        ItineraryCandidateDtoAssembler dtoAssembler
-                = new ItineraryCandidateDtoAssembler();
+        List<Itinerary> itineraries = bookingService.requestPossibleRoutesForCargo(new TrackingId(trackingId));
+        List<RouteCandidate> routeCandidates = new ArrayList<>(itineraries.size());
+        ItineraryCandidateDtoAssembler dtoAssembler = new ItineraryCandidateDtoAssembler();
         for (Itinerary itinerary : itineraries) {
             routeCandidates.add(dtoAssembler.toDTO(itinerary));
         }
-
         return routeCandidates;
     }
 }

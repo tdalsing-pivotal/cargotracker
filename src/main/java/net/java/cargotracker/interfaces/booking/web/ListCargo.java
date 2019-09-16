@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import net.java.cargotracker.interfaces.booking.facade.BookingServiceFacade;
 import net.java.cargotracker.interfaces.booking.facade.dto.CargoRoute;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Handles listing cargo. Operates against a dedicated service facade, and could
@@ -25,12 +25,16 @@ import net.java.cargotracker.interfaces.booking.facade.dto.CargoRoute;
 public class ListCargo {
 
     private List<CargoRoute> cargos;
+
     private List<CargoRoute> routedCargos;
+
     private List<CargoRoute> claimedCargos;
+
     private List<CargoRoute> notRoutedCargos;
+
     private List<CargoRoute> routedUnclaimedCargos;
 
-    @Inject
+    @Autowired
     private BookingServiceFacade bookingServiceFacade;
 
     public List<CargoRoute> getCargos() {
@@ -44,13 +48,11 @@ public class ListCargo {
 
     public List<CargoRoute> getRoutedCargos() {
         routedCargos = new ArrayList<>();
-
         for (CargoRoute route : cargos) {
             if (route.isRouted()) {
                 routedCargos.add(route);
             }
         }
-
         return routedCargos;
     }
 
@@ -61,32 +63,26 @@ public class ListCargo {
                 routedUnclaimedCargos.add(route);
             }
         }
-
         return routedUnclaimedCargos;
     }
 
     public List<CargoRoute> getClaimedCargos() {
         claimedCargos = new ArrayList<>();
-
         for (CargoRoute route : cargos) {
             if (route.isClaimed()) {
                 claimedCargos.add(route);
             }
         }
-
         return claimedCargos;
     }
 
     public List<CargoRoute> getNotRoutedCargos() {
         notRoutedCargos = new ArrayList<>();
-
         for (CargoRoute route : cargos) {
             if (!route.isRouted()) {
                 notRoutedCargos.add(route);
             }
         }
-
         return notRoutedCargos;
     }
-
 }

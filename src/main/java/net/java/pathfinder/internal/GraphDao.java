@@ -5,23 +5,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import javax.enterprise.context.ApplicationScoped;
+import org.springframework.stereotype.Service;
 
-@ApplicationScoped
+@Service
 public class GraphDao implements Serializable {
 
     private final Random random = new Random();
 
     public List<String> listLocations() {
-        return new ArrayList<>(Arrays.asList("CNHKG", "AUMEL", "SESTO",
-                "FIHEL", "USCHI", "JNTKO", "DEHAM", "CNSHA", "NLRTM", "SEGOT",
-                "CNHGH", "USNYC", "USDAL"));
+        return new ArrayList<>(Arrays.asList("CNHKG", "AUMEL", "SESTO", "FIHEL", "USCHI", "JNTKO", "DEHAM", "CNSHA", "NLRTM", "SEGOT", "CNHGH", "USNYC", "USDAL"));
     }
 
     public String getVoyageNumber(String from, String to) {
         int i = random.nextInt(5);
-
-        switch (i) {
+        switch(i) {
             case 0:
                 return "0100S";
             case 1:

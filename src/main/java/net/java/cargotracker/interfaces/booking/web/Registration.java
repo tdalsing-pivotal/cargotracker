@@ -8,10 +8,10 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import net.java.cargotracker.interfaces.booking.facade.BookingServiceFacade;
 import net.java.cargotracker.interfaces.booking.facade.dto.Location;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Handles registering cargo. Operates against a dedicated service facade, and
@@ -29,12 +29,18 @@ import net.java.cargotracker.interfaces.booking.facade.dto.Location;
 public class Registration implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     private static final String FORMAT = "yyyy-MM-dd";
+
     List<Location> locations;
+
     private String arrivalDeadline;
+
     private String originUnlocode;
+
     private String destinationUnlocode;
-    @Inject
+
+    @Autowired
     private BookingServiceFacade bookingServiceFacade;
 
     public List<Location> getLocations() {
@@ -72,18 +78,13 @@ public class Registration implements Serializable {
 
     public String register() {
         String trackingId = null;
-
         try {
             if (!originUnlocode.equals(destinationUnlocode)) {
-                trackingId = bookingServiceFacade.bookNewCargo(
-                        originUnlocode,
-                        destinationUnlocode,
-                        new SimpleDateFormat(FORMAT).parse(arrivalDeadline));
+                trackingId = bookingServiceFacade.bookNewCargo(originUnlocode, destinationUnlocode, new SimpleDateFormat(FORMAT).parse(arrivalDeadline));
             } else {
                 // TODO See if this can be injected.
                 FacesContext context = FacesContext.getCurrentInstance();
-                FacesMessage message = new FacesMessage(
-                        "Origin and destination cannot be the same.");
+                FacesMessage message = new FacesMessage("Origin and destination cannot be the same.");
                 message.setSeverity(FacesMessage.SEVERITY_ERROR);
                 context.addMessage(null, message);
                 return null;
@@ -91,7 +92,6 @@ public class Registration implements Serializable {
         } catch (ParseException e) {
             throw new RuntimeException("Error parsing date", e);
         }
-
         return "show.xhtml?faces-redirect=true&trackingId=" + trackingId;
     }
 }

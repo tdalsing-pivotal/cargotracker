@@ -1,20 +1,20 @@
 package net.java.cargotracker.infrastructure.persistence.jpa;
 
 import java.io.Serializable;
-import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import net.java.cargotracker.domain.model.cargo.TrackingId;
 import net.java.cargotracker.domain.model.handling.HandlingEvent;
 import net.java.cargotracker.domain.model.handling.HandlingEventRepository;
 import net.java.cargotracker.domain.model.handling.HandlingHistory;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@ApplicationScoped
-public class JpaHandlingEventRepository implements HandlingEventRepository,
-        Serializable {
+@Service
+public class JpaHandlingEventRepository implements HandlingEventRepository, Serializable {
 
     private static final long serialVersionUID = 1L;
-    @PersistenceContext
+
+    @Autowired
     private EntityManager entityManager;
 
     @Override
@@ -24,8 +24,6 @@ public class JpaHandlingEventRepository implements HandlingEventRepository,
 
     @Override
     public HandlingHistory lookupHandlingHistoryOfCargo(TrackingId trackingId) {
-        return new HandlingHistory(entityManager.createNamedQuery(
-                "HandlingEvent.findByTrackingId", HandlingEvent.class)
-                .setParameter("trackingId", trackingId).getResultList());
+        return new HandlingHistory(entityManager.createNamedQuery("HandlingEvent.findByTrackingId", HandlingEvent.class).setParameter("trackingId", trackingId).getResultList());
     }
 }

@@ -2,35 +2,29 @@ package net.java.cargotracker.infrastructure.persistence.jpa;
 
 import java.io.Serializable;
 import java.util.List;
-
-import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import net.java.cargotracker.domain.model.location.Location;
-
 import net.java.cargotracker.domain.model.voyage.Voyage;
 import net.java.cargotracker.domain.model.voyage.VoyageNumber;
 import net.java.cargotracker.domain.model.voyage.VoyageRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@ApplicationScoped
+@Service
 public class JpaVoyageRepository implements VoyageRepository, Serializable {
 
-	private static final long serialVersionUID = 1L;
-	@PersistenceContext
-	private EntityManager entityManager;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public Voyage find(VoyageNumber voyageNumber) {
-		return entityManager
-				.createNamedQuery("Voyage.findByVoyageNumber", Voyage.class)
-				.setParameter("voyageNumber", voyageNumber).getSingleResult();
-	}
+    @Autowired
+    private EntityManager entityManager;
 
-	@Override
-	public List<Voyage> findAll() {
-		return entityManager.createNamedQuery("Voyage.findAll", Voyage.class)
-                        .getResultList();		
-	}
-        
+    @Override
+    public Voyage find(VoyageNumber voyageNumber) {
+        return entityManager.createNamedQuery("Voyage.findByVoyageNumber", Voyage.class).setParameter("voyageNumber", voyageNumber).getSingleResult();
+    }
 
+    @Override
+    public List<Voyage> findAll() {
+        return entityManager.createNamedQuery("Voyage.findAll", Voyage.class).getResultList();
+    }
 }

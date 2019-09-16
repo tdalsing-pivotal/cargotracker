@@ -8,36 +8,48 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.flow.FlowScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import static net.java.cargotracker.application.util.DateUtil.computeDuration;
 import net.java.cargotracker.interfaces.booking.facade.dto.Location;
 import net.java.cargotracker.interfaces.booking.facade.BookingServiceFacade;
 import org.primefaces.context.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- *
  * @author davidd
  */
 @Named
 @FlowScoped("booking")
-public class BookingBackingBean implements Serializable{
+public class BookingBackingBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final String FORMAT = "yyyy-MM-dd";
-    List<Location> locations;
-    private Date arrivalDeadline;
-    private String originUnlocode;
-    private String originName;
-    private String destinationName;
-    private String destinationUnlocode;
-    private String newTrackingId = null;
-    private Date today = new Date();
-    private boolean bookable = false;
-    private long duration = -1;
-    private final long MIN_JOURNEY_DURATION = 1; // journey should be 1 day min.
 
-    @Inject
+    private static final String FORMAT = "yyyy-MM-dd";
+
+    List<Location> locations;
+
+    private Date arrivalDeadline;
+
+    private String originUnlocode;
+
+    private String originName;
+
+    private String destinationName;
+
+    private String destinationUnlocode;
+
+    private String newTrackingId = null;
+
+    private Date today = new Date();
+
+    private boolean bookable = false;
+
+    private long duration = -1;
+
+    // journey should be 1 day min.
+    private final long MIN_JOURNEY_DURATION = 1;
+
+    @Autowired
     private BookingServiceFacade bookingServiceFacade;
 
     @PostConstruct
@@ -47,10 +59,8 @@ public class BookingBackingBean implements Serializable{
 
     @SuppressWarnings("SuspiciousIndentAfterControlStatement")
     public List<Location> getLocations() {
-
         List<Location> filteredLocations = new ArrayList<>();
         String locationToRemove = null;
-
         // TODO: there should be a better way to do tihs
         if (FacesContext.getCurrentInstance().getViewRoot().getViewId().endsWith("destination.xhtml")) {
             // in Destination menu, Orign can't be selected
@@ -59,7 +69,6 @@ public class BookingBackingBean implements Serializable{
         if (destinationUnlocode != null) {
             locationToRemove = destinationUnlocode;
         }
-
         for (Location loc : locations) {
             if (!loc.getUnLocode().equalsIgnoreCase(locationToRemove)) {
                 filteredLocations.add(loc);
@@ -127,17 +136,11 @@ public class BookingBackingBean implements Serializable{
     }
 
     public String register() {
-
         String trackingId = null;
         try {
             if (!originUnlocode.equals(destinationUnlocode)) {
-                trackingId = bookingServiceFacade.bookNewCargo(
-                        originUnlocode,
-                        destinationUnlocode,
-                        //new SimpleDateFormat(FORMAT).parse(arrivalDeadline));
-                        //new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(arrivalDeadline)); // davidd
-                        arrivalDeadline);
-
+                trackingId = bookingServiceFacade.bookNewCargo(originUnlocode, destinationUnlocode, // new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(arrivalDeadline)); // davidd
+                arrivalDeadline);
             } else {
                 // TODO See if this can be injected.
                 FacesContext context = FacesContext.getCurrentInstance();
@@ -148,9 +151,10 @@ public class BookingBackingBean implements Serializable{
                 return null;
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error parsing date", e); // todo, not parsing anymore
+            // todo, not parsing anymore
+            throw new RuntimeException("Error parsing date", e);
         }
-        //return "show_original.xhtml?faces-redirect=true&trackingId=" + trackingId;
+        // return "show_original.xhtml?faces-redirect=true&trackingId=" + trackingId;
         return "/admin/dashboard.xhtml";
     }
 
@@ -168,5 +172,4 @@ public class BookingBackingBean implements Serializable{
         RequestContext.getCurrentInstance().update("dateForm:durationPanel");
         RequestContext.getCurrentInstance().update("dateForm:bookBtn");
     }
-
 }

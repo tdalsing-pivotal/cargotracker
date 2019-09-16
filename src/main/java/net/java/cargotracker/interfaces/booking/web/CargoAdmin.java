@@ -3,13 +3,13 @@ package net.java.cargotracker.interfaces.booking.web;
 import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import net.java.cargotracker.interfaces.booking.facade.BookingServiceFacade;
 import net.java.cargotracker.interfaces.booking.facade.dto.CargoRoute;
 import net.java.cargotracker.interfaces.booking.facade.dto.Leg;
 import net.java.cargotracker.interfaces.booking.facade.dto.Location;
 import net.java.cargotracker.interfaces.booking.facade.dto.RouteCandidate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Handles cargo booking and routing. Operates against a dedicated service
@@ -29,14 +29,22 @@ import net.java.cargotracker.interfaces.booking.facade.dto.RouteCandidate;
 public class CargoAdmin {
 
     private List<Location> locations;
+
     private List<String> unlocodes;
+
     private List<CargoRoute> cargos;
+
     private Date arrivalDeadline;
+
     private String originUnlocode;
+
     private String destinationUnlocode;
+
     private String trackingId;
+
     private List<Leg> legs;
-    @Inject
+
+    @Autowired
     private BookingServiceFacade bookingServiceFacade;
 
     public List<Location> getLocations() {
@@ -95,17 +103,14 @@ public class CargoAdmin {
     public void init() {
         locations = bookingServiceFacade.listShippingLocations();
         unlocodes = new ArrayList<>();
-
         for (Location location : locations) {
             unlocodes.add(location.getUnLocode());
         }
-
         cargos = bookingServiceFacade.listAllCargos();
     }
 
     public String register() {
-        String trackingId = bookingServiceFacade.bookNewCargo(
-                originUnlocode, destinationUnlocode, arrivalDeadline);
+        String trackingId = bookingServiceFacade.bookNewCargo(originUnlocode, destinationUnlocode, arrivalDeadline);
         return "show.html?trackingId=" + trackingId;
     }
 
@@ -120,13 +125,11 @@ public class CargoAdmin {
     public String assignItinerary() {
         RouteCandidate selectedRoute = new RouteCandidate(legs);
         bookingServiceFacade.assignCargoToRoute(trackingId, selectedRoute);
-
         return "show.html?trackingId=" + trackingId;
     }
 
     public String changeDestination() {
         bookingServiceFacade.changeDestination(trackingId, destinationUnlocode);
-
         return "show.html?trackingId=" + trackingId;
     }
 }

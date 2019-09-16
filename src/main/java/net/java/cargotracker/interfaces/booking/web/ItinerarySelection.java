@@ -3,11 +3,11 @@ package net.java.cargotracker.interfaces.booking.web;
 import java.io.Serializable;
 import java.util.List;
 import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
 import javax.inject.Named;
 import net.java.cargotracker.interfaces.booking.facade.BookingServiceFacade;
 import net.java.cargotracker.interfaces.booking.facade.dto.CargoRoute;
 import net.java.cargotracker.interfaces.booking.facade.dto.RouteCandidate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Handles itinerary selection. Operates against a dedicated service facade, and
@@ -27,10 +27,14 @@ import net.java.cargotracker.interfaces.booking.facade.dto.RouteCandidate;
 public class ItinerarySelection implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     private String trackingId;
+
     private CargoRoute cargo;
+
     List<RouteCandidate> routeCandidates;
-    @Inject
+
+    @Autowired
     private BookingServiceFacade bookingServiceFacade;
 
     public List<RouteCandidate> getRouteCandidates() {
@@ -55,14 +59,12 @@ public class ItinerarySelection implements Serializable {
 
     public void load() {
         cargo = bookingServiceFacade.loadCargoForRouting(trackingId);
-        routeCandidates = bookingServiceFacade
-                .requestPossibleRoutesForCargo(trackingId);
+        routeCandidates = bookingServiceFacade.requestPossibleRoutesForCargo(trackingId);
     }
 
     public String assignItinerary(int routeIndex) {
         RouteCandidate route = routeCandidates.get(routeIndex);
         bookingServiceFacade.assignCargoToRoute(trackingId, route);
-
         return "show.html?faces-redirect=true&trackingId=" + trackingId;
     }
 }
